@@ -1,0 +1,63 @@
+import requests
+import openpyxl
+
+Exchange = [
+"argenbtc", "belo", "bitex", "bitmonedero", "bitso", "buda", "buenbit", "copter", "cryptomkt",
+"decrypto", "fiwind", "ftx", "lemoncash", "letsbit", "ripio", "ripioexchange", "satoshitango", "tiendacrypto"]
+
+#Elimino exchanges que no agregan valor
+
+Exchange.remove("buda")
+Exchange.remove("bitex")
+Exchange.remove("bitmonedero")
+Exchange.remove("ftx")
+Exchange.remove("ripioexchange")
+
+#Creo variables necesarias
+
+Coin = ("btc")
+Fiat = ("ars")
+Ask = []
+Bid = []
+
+#Extraigo el valor de Bitstamp. Valor tomado por CriptoYa para calcular el valor en USD del par BTCARS
+
+BitstampBTCReq = requests.get("https://criptoya.com/api/bitstamp/btc")
+BitstampBTC = BitstampBTCReq.json()["last"]
+
+#print(Exchange)
+#print(Coin)
+#print(Fiat)
+
+#Creo las listas de Ask y Bid
+
+for i in range(len(Exchange)):
+    Exchange1 = Exchange[i]
+#    print(Exchange1)
+    Result = requests.get("https://criptoya.com/api/" + Exchange1 + "/" + Coin + "/" + Fiat)
+    Ask = [*Ask, (Result.json()["totalAsk"])]
+
+for i in range(len(Exchange)):
+    Exchange1 = Exchange[i]
+#    print(Exchange1)
+    Result = requests.get("https://criptoya.com/api/" + Exchange1 + "/" + Coin + "/" + Fiat)
+    Bid = [*Bid, (Result.json()["totalBid"])]
+
+
+#print(Ask)
+#print(Bid)
+#print(BitstampBTC)
+
+#Calculo el valor promedio de Ask y Bid en USD
+
+AvgAsk = sum(Ask) / len(Ask)
+AvgAskUSD = AvgAsk / BitstampBTC
+AvgBid = sum(Bid) / len(Bid)
+AvgBidUSD = AvgBid / BitstampBTC
+
+print(AvgAskUSD)
+print(AvgBidUSD)
+
+#for i in range(len(Bid)):
+#    BidUSD = Bid[i] / BitstampBTC
+#    print(BidUSD)
